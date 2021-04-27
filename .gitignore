@@ -1,7 +1,10 @@
 bin
+__pycache__
+.pytest_cache
 include
 lib
+Scripts
+pyvenv.cfg
 .Python
 tests/
 .envrc
-__pycache__
