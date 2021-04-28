@@ -6,5 +6,5 @@ lib
 Scripts
 pyvenv.cfg
 .Python
-tests/
+
 .envrc
