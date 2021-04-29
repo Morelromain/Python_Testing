@@ -14,6 +14,11 @@ def loadCompetitions():
          return listOfCompetitions
 
 
+def negatif_place(competition):
+    if competition['numberOfPlaces'] < 0:
+        competition['numberOfPlaces'] = 0
+        return competition['numberOfPlaces']
+
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
@@ -24,15 +29,15 @@ clubs = loadClubs()
 def index():
     return render_template('index.html')
 
+
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
-    try:
+    try: 
         club = [club for club in clubs if club['email'] == request.form['email']][0]
         return render_template('welcome.html',club=club,competitions=competitions)
     except IndexError:
         flash("Invalid email provided")
         return render_template("index.html"), 500
-
 
 
 @app.route('/book/<competition>/<club>')
@@ -52,6 +57,7 @@ def purchasePlaces():
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    negatif_place(competition)
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
