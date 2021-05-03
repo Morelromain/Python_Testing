@@ -1,19 +1,32 @@
 
 import json
 
-from server import app, loadClubs, negatif_place, competitions, clubs
+import server
 
 
 class TestServer:
+    
+    client = server.app.test_client()
+    competitions = [
+        {"name": "compet1", "date": "0", "numberOfPlaces": "10"},
+        {"name": "compet2", "date": "0", "numberOfPlaces": "25"}
+    ]
+    clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
 
-    client = app.test_client()
+    def setup_method(self):
+
+        server.competitions = [
+        {"name": "compet1", "date": "0", "numberOfPlaces": "10"},
+        {"name": "compet2", "date": "0", "numberOfPlaces": "25"}
+    ]
+        server.clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
 
     # bug 1
 
     def test_good_email(self):
         """test login with good email"""
 
-        result = self.client.post("/showSummary", data=dict(email="john@simplylift.co"))
+        result = self.client.post("/showSummary", data=dict(email="club1@email.co"))
         assert result.status_code in [200]
         
     def test_bad_email(self):
@@ -27,31 +40,48 @@ class TestServer:
     def test_less_place(self):
         """less place request than place of competition"""
 
-        for competition in competitions:
-            result = self.client.post(
-                "/purchasePlaces",
-                data={
-                    "places": int(competition["numberOfPlaces"])-1,
-                    "club": clubs[0]["name"],
-                    "competition": competition["name"],
-                },
-            )
-            assert result.status_code in [200]
-
+        result = self.client.post(
+            "/purchasePlaces", data={
+                "places": int(self.competitions[0]["numberOfPlaces"]) - 1,
+                "club": self.clubs[0]["name"],
+                "competition": self.competitions[0]["name"]}
+        )
+        assert result.status_code in [200]
 
     def test_more_place(self):
         """more place request than place of competition"""
 
-        for competition in competitions:
-            result = self.client.post(
-                "/purchasePlaces",
-                data={
-                    "places": int(competition["numberOfPlaces"])+1,
-                    "club": clubs[0]["name"],
-                    "competition": competition["name"],
-                },
-            )
-            assert result.status_code in [500]
-            assert (
-                "More place request" in result.data.decode()
-                )
+        
+        result = self.client.post(
+            "/purchasePlaces", data={
+                "places": int(self.competitions[0]["numberOfPlaces"])+1,
+                "club": self.clubs[0]["name"],
+                "competition": self.competitions[0]["name"]}
+        )
+        assert result.status_code in [403]
+        assert "More place request" in result.data.decode()
+
+    # bug 3
+
+    def test_less_12(self):
+        """BLABLA"""
+
+        result = self.client.post(
+            "/purchasePlaces", data={
+                "places": 5, 
+                "club": self.clubs[0]["name"], 
+                "competition": self.competitions[1]["name"]}
+        )
+        assert result.status_code in [200]
+
+    def test_more_than_12(self):
+        """more place request than place of competition"""
+
+        result = self.client.post(
+            "/purchasePlaces", data={
+                "places": 15,
+                "club": self.clubs[0]["name"],
+                "competition": self.competitions[1]["name"]}
+        )
+        assert result.status_code in [403]
+        assert "More place than" in result.data.decode()
