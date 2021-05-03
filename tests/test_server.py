@@ -1,54 +1,57 @@
+
 import json
 
-from server import app, loadClubs, negatif_place
+from server import app, loadClubs, negatif_place, competitions, clubs
+
 
 class TestServer:
 
     client = app.test_client()
 
-    def mock_load_club():
-        return [{'name': 'test', 'email': 'good@mail.co'}]
+    # bug 1
 
-    # test connection with email 
+    def test_good_email(self):
+        """test login with good email"""
 
-    def test_login_with_good_email(self):
-        result = TestServer.client.post("/showSummary", data=dict(email="john@simplylift.co"))
+        result = self.client.post("/showSummary", data=dict(email="john@simplylift.co"))
         assert result.status_code in [200]
         
-    def test_login_with_bad_email(self):
-        result = TestServer.client.post("/showSummary", data=dict(email="aa@aa.aa"))
+    def test_bad_email(self):
+        """test login with bad email"""
+
+        result = self.client.post("/showSummary", data=dict(email="aa@aa.aa"))
         assert result.status_code in [500]
 
-    # test found email in club
+    # bug 2
 
-    def test_found_good_email(self):
-        
-        def mock_request_email():
-            return 'good@mail.co'
+    def test_less_place(self):
+        """less place request than place of competition"""
 
-        clubs = TestServer.mock_load_club() 
-        club = [club for club in clubs if club['email'] == mock_request_email()][0]
-        assert club == {'email': 'good@mail.co', 'name': 'test'}
-        
-    def test_found_bad_email(self):
-        
-        def mock_request_email():
-            return 'bad@mail.co'
+        for competition in competitions:
+            result = self.client.post(
+                "/purchasePlaces",
+                data={
+                    "places": int(competition["numberOfPlaces"])-1,
+                    "club": clubs[0]["name"],
+                    "competition": competition["name"],
+                },
+            )
+            assert result.status_code in [200]
 
-        clubs = TestServer.mock_load_club() 
-        try:
-            club = [club for club in clubs if club['email'] == mock_request_email()][0]
-        except IndexError:
-            bad_email = True
-        assert bad_email == True
 
-    # test negatif place
+    def test_more_place(self):
+        """more place request than place of competition"""
 
-    def test_negatif_place(self):
-        
-        def mock_competition():
-            return {'name': 'test', 'numberOfPlaces': -2}
-            
-        competition = mock_competition()
-        result = negatif_place(competition)
-        assert result == 0
+        for competition in competitions:
+            result = self.client.post(
+                "/purchasePlaces",
+                data={
+                    "places": int(competition["numberOfPlaces"])+1,
+                    "club": clubs[0]["name"],
+                    "competition": competition["name"],
+                },
+            )
+            assert result.status_code in [500]
+            assert (
+                "More place request" in result.data.decode()
+                )
