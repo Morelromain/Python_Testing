@@ -86,5 +86,3 @@ class TestServer:
         )
         assert result.status_code in [403]
         assert "More place than" in result.data.decode()
-
-
