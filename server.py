@@ -1,5 +1,10 @@
 import json
+import datetime
 from flask import Flask, render_template, request, redirect, flash, url_for
+
+
+app = Flask(__name__)
+app.secret_key = 'something_special'
 
 
 def loadClubs():
@@ -10,6 +15,11 @@ def loadClubs():
 def loadCompetitions():
     with open('competitions.json') as comps:
         return json.load(comps)['competitions']
+
+
+competitions = loadCompetitions()
+clubs = loadClubs()
+point_memory = []
 
 
 def create_point_memory(competitions):
@@ -43,12 +53,18 @@ def negatif_place(competition, placesRequired):
         raise ValueError("More place request than place of competition")
 
 
-app = Flask(__name__)
-app.secret_key = 'something_special'
-
-competitions = loadCompetitions()
-clubs = loadClubs()
-point_memory = []
+def old_or_new(competitions):
+    old_c = [
+        c for c in competitions if datetime.datetime.strptime(
+            c['date'], "%Y-%m-%d %H:%M:%S"
+            ) < datetime.datetime.now()
+        ]
+    new_c = [
+        c for c in competitions if datetime.datetime.strptime(
+            c['date'], "%Y-%m-%d %H:%M:%S"
+            ) >= datetime.datetime.now()
+        ]
+    return old_c, new_c
 
 
 @app.route('/')
@@ -58,9 +74,12 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
+
     try: 
         club = [club for club in clubs if club['email'] == request.form['email']][0]
-        return render_template('welcome.html', club=club, competitions=competitions)
+        old_c, new_c = old_or_new(competitions)
+        return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c)
+
     except IndexError:
         flash("Invalid email provided")
         return render_template("index.html"), 500
@@ -72,13 +91,24 @@ def book(competition, club):
     foundClub = [c for c in clubs if c['name'] == club][0]
     foundCompetition = [c for c in competitions if c['name'] == competition][0]
     point_add = create_point_add(foundCompetition)
-    if foundClub and foundCompetition:
-        limit = (int(foundClub["points"]), int(foundCompetition['numberOfPlaces']), 12-point_add)
-        return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=min(limit))
-    else:
-        flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
-
+    try: 
+        if datetime.datetime.strptime(
+            foundCompetition['date'], "%Y-%m-%d %H:%M:%S"
+            ) < datetime.datetime.now():
+            raise ValueError("the competition is closed")
+            
+        if foundClub and foundCompetition:
+            limit = (int(foundClub["points"]), int(foundCompetition['numberOfPlaces']), 12-point_add)
+            return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=min(limit))
+        
+        else:
+            raise ValueError("Something went wrong-please try again")# PAS FAIT, EXISTANT A L'ORIGINE A TEST
+    
+    except ValueError as error:
+        flash(error)
+        status_code = 403
+        old_c, new_c = old_or_new(competitions)
+        return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c), status_code
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
@@ -89,14 +119,16 @@ def purchasePlaces():
     try:
         negatif_place(competition, placesRequired)
         point_memory = add_point_memory(competition, placesRequired)
-        
         competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
         flash('Great-booking complete!')
         status_code = 200
+    
     except ValueError as error:
         flash(error)
         status_code = 403
-    return render_template('welcome.html', club=club, competitions=competitions), status_code
+
+    old_c, new_c = old_or_new(competitions)
+    return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c), status_code
 
 
 # TODO: Add route for points display

@@ -1,4 +1,3 @@
-
 import json
 
 import server
@@ -8,18 +7,19 @@ class TestServer:
     
     client = server.app.test_client()
     competitions = [
-        {"name": "compet1", "date": "0", "numberOfPlaces": "10"},
-        {"name": "compet2", "date": "0", "numberOfPlaces": "25"}
-    ]
+        {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "10"},
+        {"name": "compet2", "date": "2020-03-27 10:00:00", "numberOfPlaces": "25"}
+        ]
     clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
 
     def setup_method(self):
 
         server.competitions = [
-        {"name": "compet1", "date": "0", "numberOfPlaces": "10"},
-        {"name": "compet2", "date": "0", "numberOfPlaces": "25"}
-    ]
+        {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "10"},
+        {"name": "compet2", "date": "2020-03-27 10:00:00", "numberOfPlaces": "25"}
+        ]
         server.clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
+
 
     # bug 1
 
@@ -34,6 +34,7 @@ class TestServer:
 
         result = self.client.post("/showSummary", data=dict(email="aa@aa.aa"))
         assert result.status_code in [500]
+
 
     # bug 2
 
@@ -61,6 +62,7 @@ class TestServer:
         assert result.status_code in [403]
         assert "More place request" in result.data.decode()
 
+
     # bug 3
 
     def test_less_12(self):
@@ -85,3 +87,5 @@ class TestServer:
         )
         assert result.status_code in [403]
         assert "More place than" in result.data.decode()
+
+
