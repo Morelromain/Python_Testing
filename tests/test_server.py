@@ -16,8 +16,7 @@ class TestServer:
 
         server.competitions = [
         {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "10"},
-        {"name": "compet2", "date": "2020-03-27 10:00:00", "numberOfPlaces": "25"}
-        ]
+        {"name": "compet2", "date": "2020-03-27 10:00:00", "numberOfPlaces": "25"}]
         server.clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
 
 
