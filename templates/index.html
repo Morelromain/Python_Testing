@@ -20,6 +20,23 @@
         {% endfor %}
         </ul>
       {% endif %}
+    
+    <table style="border: 1px solid #333 ; border-collapse: collapse">
+      <thead>
+        <tr>
+          <th colspan="2">Points available per club</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for club in clubs %}
+        <tr>
+          <td style="border: 1px solid #333">{{club['name']}}</td>
+          <td style="border: 1px solid #333">{{club['points']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
     {% endwith %}
 </body>
 </html>

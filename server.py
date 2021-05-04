@@ -75,20 +75,20 @@ def club_point_substraction(club, placesRequired):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', clubs=clubs)
 
 
-@app.route('/showSummary',methods=['POST'])
+@app.route('/showSummary', methods=['POST'])
 def showSummary():
 
     try: 
         club = [club for club in clubs if club['email'] == request.form['email']][0]
         old_c, new_c = old_or_new(competitions)
-        return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c)
+        return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c, clubs=clubs)
 
     except IndexError:
         flash("Invalid email provided")
-        return render_template("index.html"), 500
+        return render_template("index.html", clubs=clubs), 500
 
 
 @app.route('/book/<competition>/<club>')
@@ -114,7 +114,7 @@ def book(competition, club):
         flash(error)
         status_code = 403
         old_c, new_c = old_or_new(competitions)
-        return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c), status_code
+        return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c, clubs=clubs), status_code
 
 
 @app.route('/purchasePlaces',methods=['POST'])
@@ -136,7 +136,7 @@ def purchasePlaces():
 
     
     old_c, new_c = old_or_new(competitions)
-    return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c), status_code
+    return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c, clubs=clubs), status_code
 
 
 # TODO: Add route for points display
