@@ -48,9 +48,10 @@ def create_point_add(competition):
     return point_add
 
 
-def negatif_place(competition, placesRequired):
+def place_substraction(competition, placesRequired):
     if int(competition["numberOfPlaces"]) < placesRequired:
         raise ValueError("More place request than place of competition")
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - placesRequired
 
 
 def old_or_new(competitions):
@@ -65,6 +66,11 @@ def old_or_new(competitions):
             ) >= datetime.datetime.now()
         ]
     return old_c, new_c
+
+def club_point_substraction(club, placesRequired):
+    if int (club["points"]) - (placesRequired * 3) < 0:
+        raise ValueError("More place request than club point")
+    club["points"] = int(club["points"]) - (placesRequired*3)
 
 
 @app.route('/')
@@ -98,7 +104,7 @@ def book(competition, club):
             raise ValueError("the competition is closed")
             
         if foundClub and foundCompetition:
-            limit = (int(foundClub["points"]), int(foundCompetition['numberOfPlaces']), 12-point_add)
+            limit = (int(foundClub["points"]) // 3, int(foundCompetition['numberOfPlaces']), 12-point_add)
             return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=min(limit))
         
         else:
@@ -118,16 +124,17 @@ def purchasePlaces():
     placesRequired = int(request.form['places'])
     
     try:
-        negatif_place(competition, placesRequired)
+        place_substraction(competition, placesRequired)
         point_memory = add_point_memory(competition, placesRequired)
-        competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+        club_point_substraction(club, placesRequired)
         flash('Great-booking complete!')
         status_code = 200
-    
+
     except ValueError as error:
         flash(error)
         status_code = 403
 
+    
     old_c, new_c = old_or_new(competitions)
     return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c), status_code
 
@@ -138,3 +145,5 @@ def purchasePlaces():
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
+
+

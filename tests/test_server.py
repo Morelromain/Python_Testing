@@ -7,7 +7,7 @@ class TestServer:
     
     client = server.app.test_client()
     competitions = [
-        {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "10"},
+        {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "5"},
         {"name": "compet2", "date": "2020-03-27 10:00:00", "numberOfPlaces": "25"}
         ]
     clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
@@ -15,7 +15,7 @@ class TestServer:
     def setup_method(self):
 
         server.competitions = [
-        {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "10"},
+        {"name": "compet1", "date": "2022-03-27 10:00:00", "numberOfPlaces": "5"},
         {"name": "compet2", "date": "2020-03-27 10:00:00", "numberOfPlaces": "25"}]
         server.clubs = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
 
@@ -51,7 +51,6 @@ class TestServer:
     def test_more_place(self):
         """more place request than place of competition"""
 
-        
         result = self.client.post(
             "/purchasePlaces", data={
                 "places": int(self.competitions[0]["numberOfPlaces"])+1,
@@ -106,3 +105,29 @@ class TestServer:
         )
         assert result.status_code in [403]
         assert "the competition is closed" in result.data.decode()
+
+
+    # bug 5
+
+    def test_less_club_point(self):
+        """BLABLA"""
+
+        result = self.client.post(
+            "/purchasePlaces", data={ 
+                "places": int(self.clubs[0]["points"]) // 3 - 1,
+                "club": self.clubs[0]["name"], 
+                "competition": self.competitions[1]["name"]}
+        )
+        assert result.status_code in [200]
+
+    def test_more_club_point(self):
+        """more place request than place of competition"""
+
+        result = self.client.post(
+            "/purchasePlaces", data={
+                "places": int(self.clubs[0]["points"]) // 3 + 1,
+                "club": self.clubs[0]["name"],
+                "competition": self.competitions[1]["name"]}
+        )
+        assert result.status_code in [403]
+        assert "More place request than club" in result.data.decode()
