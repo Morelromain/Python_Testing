@@ -86,3 +86,23 @@ class TestServer:
         )
         assert result.status_code in [403]
         assert "More place than" in result.data.decode()
+
+
+    # bug 4
+
+    def test_new_compet(self):
+        """BLABLA"""
+
+        result = self.client.get(
+            "/book/" + self.competitions[0]['name'] + "/" + self.clubs[0]['name']
+        )
+        assert result.status_code in [200]
+
+    def test_old_compet(self):
+        """BLABLA"""
+
+        result = self.client.get(
+            "/book/" + self.competitions[1]['name'] + "/" + self.clubs[0]['name']
+        )
+        assert result.status_code in [403]
+        assert "the competition is closed" in result.data.decode()

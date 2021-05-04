@@ -110,6 +110,7 @@ def book(competition, club):
         old_c, new_c = old_or_new(competitions)
         return render_template('welcome.html', club=club, competitions=new_c, old_c=old_c), status_code
 
+
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
