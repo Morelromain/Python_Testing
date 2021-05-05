@@ -1,40 +1,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/styles/server.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUDLFT Registration</title>
 </head>
 <body>
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
+    
     Please enter your secretary email to continue:
     <form action="showSummary" method="post">
         <label for="email">Email:</label>
         <input type="email" name="email" id=""/>
         <button type="submit">Enter</button>
     </form>
+    
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <ul class=flashes>
         {% for message in messages %}
-          <li style="color:#FF0000">{{ message }}</li>
+            <li style="color:#FF0000">{{ message }}</li>
         {% endfor %}
         </ul>
       {% endif %}
     
-    <table style="border: 1px solid #333 ; border-collapse: collapse">
-      <thead>
-        <tr>
-          <th colspan="2">Points available per club</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for club in clubs %}
-        <tr>
-          <td style="border: 1px solid #333">{{club['name']}}</td>
-          <td style="border: 1px solid #333">{{club['points']}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">Points available per club</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for club in clubs %}
+            <tr>
+                <td style="border: 1px solid #333">{{club['name']}}</td>
+                <td style="border: 1px solid #333">{{club['points']}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 
     {% endwith %}

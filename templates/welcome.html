@@ -1,17 +1,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/styles/server.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Summary | GUDLFT Registration</title>
 </head>
 <body>
-        <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
+    <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
 
     {% with messages = get_flashed_messages()%}
     {% if messages %}
         <ul>
-       {% for message in messages %}
-            <li>{{message}}</li>
+        {% for message in messages %}
+            {% if message == "Great-booking complete!" %}
+                <li style="color:#000fff">{{ message }}</li>
+            {% else %}
+                <li style="color:#FF0000">{{ message }}</li>
+            {% endif %}
         {% endfor %}
        </ul>
     {% endif%}
@@ -25,7 +30,7 @@
             Date: {{comp['date']}}</br>
             Number of Places: {{comp['numberOfPlaces']}}
             {%if comp['numberOfPlaces']|int >0%}
-            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
+                <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
             {%endif%}
         </li>
         <hr />
@@ -45,17 +50,17 @@
     
     <table style="border: 1px solid #333 ; border-collapse: collapse">
         <thead>
-          <tr>
-            <th colspan="2">Points available per club</th>
-          </tr>
+            <tr>
+                <th colspan="2">Points available per club</th>
+            </tr>
         </thead>
         <tbody>
-          {% for club in clubs %}
-          <tr>
-            <td style="border: 1px solid #333">{{club['name']}}</td>
-            <td style="border: 1px solid #333">{{club['points']}}</td>
-          </tr>
-          {% endfor %}
+            {% for club in clubs %}
+            <tr>
+                <td style="border: 1px solid #333">{{club['name']}}</td>
+                <td style="border: 1px solid #333">{{club['points']}}</td>
+            </tr>
+            {% endfor %}
         </tbody>
       </table>
 
