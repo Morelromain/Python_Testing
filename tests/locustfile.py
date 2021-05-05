@@ -1,21 +1,35 @@
-import time
 from locust import HttpUser, task, between
+
+from server import loadClubs, loadCompetitions
+
+
+competition = loadCompetitions()[0]["name"]
+club = loadClubs()[0]["name"]
+email = loadClubs()[0]["email"]
+
 
 class QuickstartUser(HttpUser):
     wait_time = between(1, 2.5)
 
-    club  = "Simply Lift"
-    competition = "Spring Festival"
-
     def on_start(self):
         self.client.get("/")
-        self.client.post("/showSummary", {"email": "john@simplylift.co"})
 
     @task
-    def book(self):
-        self.client.get(f"/book/{self.competition}/{self.club}")
+    def post_showSummary(self):
+        
+        self.client.post("/showSummary", data={
+            "email":email
+            })
 
     @task
-    def purchasePlaces(self):
-        self.client.post("/purchasePlaces", {"places": 0, "club": "Simply Lift", "competition": "Spring Festival"})
+    def get_book(self):
+        self.client.get("/book/" + competition + "/" + club)
+
+    @task
+    def post_purchasePlaces(self):
+        self.client.post("/purchasePlaces", data={ 
+            "club": club, 
+            "competition": competition,
+            "places": 0
+            })
 
