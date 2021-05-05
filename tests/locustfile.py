@@ -8,29 +8,27 @@ club = loadClubs()[0]["name"]
 email = loadClubs()[0]["email"]
 
 
-class QuickstartUser(HttpUser):
+class LocustServer(HttpUser):
     """ Test server.py using locustfile"""
 
     wait_time = between(1, 2.5)
 
     def on_start(self):
-        """ Test index acces"""
+        """ Test index acces and showSummary acces and post """
 
-        self.client.get("/")
-
-    @task
-    def post_showSummary(self):
-        """ Test showSummary acces and post"""
+        self.client.get("/", name="index")
 
         self.client.post("/showSummary", data={
             "email": email
-            })
+            }, name="showSummary")
+
 
     @task
     def get_book(self):
         """ Test book acces"""
 
-        self.client.get("/book/" + competition + "/" + club)
+        self.client.get("/book/" + competition + "/" + club, name="book")
+
 
     @task
     def post_purchasePlaces(self):
@@ -39,5 +37,5 @@ class QuickstartUser(HttpUser):
         self.client.post("/purchasePlaces", data={
             "club": club,
             "competition": competition,
-            "places": 0
-            })
+            "places": 0,
+            }, name="purchasePlaces")
