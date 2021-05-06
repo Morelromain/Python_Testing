@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-table {
+table, td {
     background: #e8e8fc;
     border: 1px solid #333; 
     border-collapse: collapse;
