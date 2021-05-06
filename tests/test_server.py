@@ -15,7 +15,7 @@ class TestServer:
             "numberOfPlaces": "25"}]
     clubs_test = [{"name": "club1", "email": "club1@email.co", "points": "15"}]
 
-    def setup(self):
+    def setup_method(self):
         """Change server.py variable data"""
 
         server.competitions = [
@@ -136,3 +136,31 @@ class TestServer:
         )
         assert result.status_code in [403]
         assert "More place request than club" in result.data.decode()
+
+# 100% coverage
+    def test_index(self):
+        """ test acces to index page """
+
+        result = self.client_test.get("/")
+        assert result.status_code in [200]
+
+    def test_logout(self):
+        """ test acces to logout page """
+
+        result = self.client_test.get("logout")
+        assert result.status_code in [302]
+
+    def test_more_than_12_in_several_times(self):
+        """test more place request than 12"""
+
+        server.clubs = [
+            {"name": "club1", "email": "club1@email.co", "points": "5"}]
+
+        result = self.client_test.post(
+            "/purchasePlaces", data={
+                "places": 10,
+                "club": self.clubs_test[0]["name"],
+                "competition": self.compets_test[1]["name"]}
+        )
+        assert result.status_code in [403]
+        assert "More place than" in result.data.decode()
