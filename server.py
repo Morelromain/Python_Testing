@@ -5,7 +5,8 @@ from flask import Flask, render_template, request, redirect, flash, url_for
 
 app = Flask(__name__)
 app.secret_key = 'something_special'
-
+ratio = 3 # Ratio club's points per place
+place_max = 12 # Maximal place per club
 
 def loadClubs():
     """ load clubs.json """
@@ -112,9 +113,9 @@ def book(competition, club):
             competitions=new_c, old_c=old_c, clubs=clubs
             ), status_code
     limit = (
-        int(foundClub["points"]) // 3,
+        int(foundClub["points"]) // ratio,
         int(foundCompetition['numberOfPlaces']),
-        12-point_add
+        place_max-point_add
         )
     return render_template(
         'booking.html', club=foundClub,
@@ -126,12 +127,12 @@ def book(competition, club):
 def add_point_memory(competition, placesRequired):
     """ add required place to point_memory, check if less than 13 """
 
-    if placesRequired > 12:
+    if placesRequired > place_max:
         raise ValueError("More place than 12 take per clubs")
     for point in point_memory:
         if (competition['name']) == point['name']:
             point['taken'] = point['taken'] + placesRequired
-        if point['taken'] > 12:
+        if point['taken'] > place_max:
             raise ValueError("More place than 12 take per clubs")
 
 
@@ -148,9 +149,9 @@ def place_substraction(competition, placesRequired):
 def club_point_substraction(club, placesRequired):
     """ subtract required place to the club, check if it's possible """
 
-    if int(club["points"]) - (placesRequired * 3) < 0:
+    if int(club["points"]) - (placesRequired * ratio) < 0:
         raise ValueError("More place request than club point")
-    club["points"] = int(club["points"]) - (placesRequired*3)
+    club["points"] = int(club["points"]) - (placesRequired*ratio)
 
 
 @app.route('/purchasePlaces', methods=['POST'])
