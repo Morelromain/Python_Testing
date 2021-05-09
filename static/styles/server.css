@@ -1,0 +1,19 @@
+body {
+    background: #d4c3b9;
+    font-family: Arial, sans-serif;
+}
+
+table, td {
+    background: #e8e8fc;
+    border: 1px solid #333; 
+    border-collapse: collapse;
+}
+
+h1, h2 {
+    text-align: center;
+    color: rgb(14, 12, 37);
+}
+
+h3{
+    color: rgb(14, 12, 37);
+}

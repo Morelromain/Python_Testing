@@ -1,7 +1,12 @@
 bin
+__pycache__
+.pytest_cache
+.vscode
+.coverage
 include
 lib
+Scripts
+pyvenv.cfg
 .Python
-tests/
+
 .envrc
-__pycache__
