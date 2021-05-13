@@ -5,8 +5,9 @@ from flask import Flask, render_template, request, redirect, flash, url_for
 
 app = Flask(__name__)
 app.secret_key = 'something_special'
-ratio = 3 # Ratio club's points per place
-place_max = 12 # Maximal place per club
+ratio = 3  # Ratio club's points per place
+place_max = 12  # Maximal place per club
+
 
 def loadClubs():
     """ load clubs.json """
@@ -154,6 +155,13 @@ def club_point_substraction(club, placesRequired):
     club["points"] = int(club["points"]) - (placesRequired*ratio)
 
 
+def not_negatif_check(placesRequired):
+    """ check if places required havn't negative value """
+
+    if placesRequired < 0:
+        raise ValueError("negative value")
+
+
 @app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
     """ display welcome.html, check and update the reservation """
@@ -164,6 +172,7 @@ def purchasePlaces():
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
     try:
+        not_negatif_check(placesRequired)
         place_substraction(competition, placesRequired)
         add_point_memory(competition, placesRequired)
         club_point_substraction(club, placesRequired)
