@@ -2,7 +2,7 @@ import server
 from server import app
 
 
-class TestDisplayCompet:
+class TestDisplayClub:
     """Test server.py using pytest"""
 
     client_test = app.test_client()
@@ -29,7 +29,7 @@ class TestDisplayCompet:
             {"name": "club1", "email": "club1@email.co", "points": "15"}]
             
             
-    def test_display_compet_name(self):
+    def test_display_club_name(self):
         """test login with good email"""
 
         result = self.client_test.post(
